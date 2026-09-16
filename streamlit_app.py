@@ -1,7 +1,7 @@
 # Import python packages
 import streamlit as st
 import os
-from snowflake.snowpark.functions import col, when_matched
+from snowflake.snowpark.functions import col
 
 
 # Write directly to the app
@@ -11,27 +11,39 @@ st.write(
   """
 )
 
+#name box for customer
+name_on_order = st.text_input("Name on Smoothie:")
+st.write("The name on you smoothie will be:", name_on_order)
+
 cnx = st.connection("snowflake")
 session = cnx.session()
-my_dataframe = session.table("smoothies.public.orders").filter(col("ORDER_FILLED") == 0).collect()
+my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'))
+st.dataframe(data=my_dataframe, width='stretch')
 
 
-if my_dataframe:
-    editable_df = st.data_editor(my_dataframe)
-    #submit button
-    submitted = st.button('Submit')
+ingredients_list = st.multiselect(
+    "Choose up to 5 ingredients:", my_dataframe,
+    max_selections=5
+)
+
+if ingredients_list:
     
-    if submitted:    
-        # orders dataset
-        og_dataset = session.table("smoothies.public.orders")
-        # new edited filled orders
-        edited_dataset = session.create_dataframe(editable_df)
-        try:
-            og_dataset.merge(edited_dataset, (og_dataset['ORDER_UID'] == edited_dataset['ORDER_UID']),[when_matched().update({'ORDER_FILLED':          edited_dataset['ORDER_FILLED']})])
+    ingredients_string = ''
+    
+    for i in ingredients_list:       
+        ingredients_string+=i + ' '
 
-            st.success("Order(s) Updated!")
 
-        except:
-            st.write("something went wrong")
-else:
-    st.success("There are no pending orders right now")
+    my_insert_smt = """ insert into smoothies.public.orders(ingredients, name_on_order) 
+    values ('""" + ingredients_string + """', '"""+name_on_order+"""')"""
+
+    # st.write(my_insert_smt)
+    # st.stop()
+
+    #insert button
+    time_to_insert = st.button('Submit Order')
+    
+    if time_to_insert:
+        session.sql(my_insert_smt).collect()
+
+        st.success(f"Your Smoothie is ordered, {name_on_order}", icon="✅")
