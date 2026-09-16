@@ -3,7 +3,7 @@ import streamlit as st
 import os
 from snowflake.snowpark.functions import col
 import requests  
-import pandas
+import pandas as pd
 
 # Write directly to the app
 st.title(f"Customize Your Smoothie!🥤\n")
@@ -38,8 +38,10 @@ if ingredients_list:
     
     for i in ingredients_list:       
         ingredients_string+=i + ' '
-      
+
+        print(pd_df)
         search_on=pd_df.loc[pd_df['FRUIT_NAME'] == i, 'SEARCH_ON'].iloc[0]
+        
         st.write('The search value for ', i,' is ', search_on, '.')
       
         # API for smoothiefroot for chosen fruit
