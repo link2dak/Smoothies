@@ -18,7 +18,7 @@ st.write("The name on you smoothie will be:", name_on_order)
 
 cnx = st.connection("snowflake")
 session = cnx.session()
-my_dataframe = session.table("smoothies.public.fruit_options").select(col('SEARCH_ON'))
+my_dataframe = session.table("smoothies.public.fruit_options").select(col('FRUIT_NAME'), col('SEARCH_ON'))
 # st.dataframe(data=my_dataframe, width='stretch')
 # st.stop()
 
@@ -39,7 +39,6 @@ if ingredients_list:
     for i in ingredients_list:       
         ingredients_string+=i + ' '
 
-        print(pd_df)
         search_on=pd_df.loc[pd_df['FRUIT_NAME'] == i, 'SEARCH_ON'].iloc[0]
         
         st.write('The search value for ', i,' is ', search_on, '.')
