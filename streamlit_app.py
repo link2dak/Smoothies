@@ -45,6 +45,7 @@ if ingredients_list:
 
         final = ''
         if search_on:
+          print(search_on)
           final = search_on
         else:
           final = i
