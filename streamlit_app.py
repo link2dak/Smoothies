@@ -51,7 +51,7 @@ if ingredients_list:
           final = i
           
         smoothiefroot_response = requests.get(
-        f"https://my.smoothiefroot.com/api/fruit/{i}")
+        f"https://my.smoothiefroot.com/api/fruit/{final}")
         sf_df = st.dataframe(data=smoothiefroot_response.json(), use_container_width=True)
 
 
